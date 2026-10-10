@@ -1525,7 +1525,7 @@ class FlatTripleBuilder:
         # ``:mode`` is clause-force metadata. Preserve its active dyad only
         # when its source is a lexical/event node. A mode
         # attached to a structural connective (for example, an exclamation
-        # whose AMR root is ``and``) has no parser-faithful dyadic endpoint:
+        # whose AMR root is ``and``) has no supported dyadic endpoint:
         # distributing it over the conjuncts would be semantic repair, while
         # the generic connective fallback would incorrectly turn metadata
         # into an opaque semantic atom.  Keep the record in metadata and
@@ -1720,8 +1720,8 @@ class FlatTripleBuilder:
                 if target in self.concepts:
                     candidates.append(target)
         else:
-            # Unary atoms have no relation participant.  Opaque atoms stay
-            # conservative because their endpoint contract is unsupported.
+            # Unary atoms have no relation participant. Opaque atoms have an
+            # unsupported endpoint contract.
             return []
 
         predicate_nodes = {

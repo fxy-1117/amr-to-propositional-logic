@@ -1,4 +1,4 @@
-"""Final parser-faithful atom surface realization."""
+"""Atom verbalization from AMR roles and PropBank metadata."""
 from __future__ import annotations
 
 from typing import Any, Dict, Mapping

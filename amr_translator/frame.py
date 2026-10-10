@@ -12,7 +12,7 @@ class TranslatorContractError(RuntimeError):
     """Raised when a frame violates the public output contract."""
 
 def _apply_role_surfaces(base: Mapping[str, Any]) -> Dict[str, Any]:
-    """Apply the parser-faithful, PropBank-aware verbalization rules."""
+    """Apply AMR role templates with PropBank metadata."""
 
     propbank.load_propbank_role_index()
     frame = copy.deepcopy(dict(base))

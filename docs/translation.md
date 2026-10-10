@@ -83,6 +83,8 @@ the frame, but may contain gaps after filtering and merges. Formula leaf order
 need not match atom-list order. Do not use a numeric ID as a persistent identity
 across independent translations.
 
+Public atom verbalizations are unsigned; negation is represented in `formula_ast`.
+
 ### Formula AST schema
 
 | Operator | Shape | Meaning |
@@ -874,21 +876,10 @@ atom.
 | Attitude | `:ARG1` of `want-01`, `believe-01`, `think-01`, `hope-01`, `fear-01`, `wish-01`, `intend-01`, `pretend-01`, or `plan-01`; target concept ends in `-NN` or is `and`/`or`. | `unresolved_nonfactive_content` |
 | Modal | `:ARG1` of `possible-01`, with the same target-shape condition. | `unresolved_nonfactive_content` |
 | Reporting | `:ARG1` of `say-01`; target concept ends in `-NN` or is `and`/`or`. | `unresolved_reporting_content` |
-| Alternate property clause | An as-yet-unlisted `:ARG1` target of any governor above, when the target has a `:domain` edge, or its concept is in the property registry below and it has an `:ARG1` edge. | `unresolved_property_content`, with `merge_guard_only: true` |
+| Alternate property clause | A `:ARG1` target not detected by the preceding patterns: governor is listed above; target has `:domain`, or has `:ARG1` and a concept in the alternate property registry. | `unresolved_property_content`, with `merge_guard_only: true` |
 
-The alternate property registry is `PROPERTIES` union the keys of
-`PHYSICAL_PROPERTY_SURFACES`:
-
-```text
-bad bad-07 beautiful-02 big black black-04 blue blue-02 bright brown brown-01
-cheap close cold dark deep difficult easy easy-05 expensive fast fast-02
-funny-02 good good-02 gray gray-02 green green-02 grey happy happy-01 hard-02
-high high-02 hot important important-01 intense-02 large large-02 lax lax-01
-long long-03 loud low muddy-01 new nice-01 old old-02 pink pink-04 popular
-popular-02 quick-02 quiet red red-02 rough-04 sad sad-02 short slow small
-small-02 strong strong-02 tall tan-01 warm weak well-09 wet-01 white white-03
-wide yellow yellow-02 young young-01
-```
+The alternate property registry is the union of `PROPERTIES` and the keys of
+`PHYSICAL_PROPERTY_SURFACES`, defined under [Lexical registries](#lexical-registries).
 
 The `:domain` test is structural and does not require membership in that
 registry. A property boundary only extends merge guards; it does not add support
@@ -920,12 +911,10 @@ possible metadata rejection reasons are:
 | `unsupported_polarity_deferred` | Polarity is not exactly one literal-minus attribute. |
 | `nested_polarity_deferred` | An inspected node has a literal-minus polarity. |
 
-These checks preserve the unresolved relation atoms when a proposed merge is
-refused. They do not repair the broader factivity or reporting semantics. In
-particular, the returned propositional formula may still conjoin an embedded
-content atom with the attitude or reporting atom, as the examples below show.
-Applications that need sound treatment of such content must use the diagnostics
-when deciding whether to accept the translation.
+Refusing a merge preserves its component relation atoms. A merge wholly inside
+a content region may still succeed. Neither outcome resolves factivity or
+reporting: the formula may conjoin embedded content with the attitude or
+reporting atom. Use the boundary diagnostics to assess such translations.
 
 Sources: [boundary detectors](../amr_translator/builder.py),
 [reporting detector](../amr_translator/reporting.py),
@@ -987,9 +976,10 @@ is detected for merge isolation but is not enclosed in a nonfactual scope.
 
 ## Lexical rendering
 
-The verbalizer reads AMR concepts, role labels, literals, names, and metadata. Each public atom contains an unsigned `verbalization`; formula negation does not insert `not` into that string. After all rules and template merges, the public output applies `str(value).strip().casefold()` to each verbalization. Exact matching compares the resulting strings directly. Internal whitespace and existing punctuation are preserved without adding a final period. Ordinary templates use single spaces. Predicates generally remain in their base form, as in `ada give book`.
-
-The same formatting applies to `merges[*].surface` in the audit. Structured atom identities and `diagnostic_provenance` retain their construction values.
+The verbalizer renders AMR concepts, role labels, literals, names, and metadata.
+Ordinary templates use single spaces; predicates usually stay in their base form, as in
+`ada give book`. Public formatting is defined under
+[Identity and text helpers](#identity-and-text-helpers).
 
 Source: [concept and literal rendering](../amr_translator/primitives.py), [endpoint rendering](../amr_translator/atoms.py), [role templates](../amr_translator/role_templates.py), [final role dispatch](../amr_translator/verbalization.py), [surface repairs](../amr_translator/surfaces.py), and [public frame projection](../amr_translator/frame.py).
 
@@ -1129,7 +1119,7 @@ These lexical sets apply only at the specified decision points; they do not make
 
 ### Dyad templates
 
-Source: [numbered-role templates](../amr_translator/role_templates.py), [non-numbered templates](../amr_translator/role_templates.py), and [non-numbered dispatch](../amr_translator/role_templates.py).
+Source: [role_templates.py](../amr_translator/role_templates.py).
 
 Let `C` be the source/predicate surface and `D` the target surface. `pp(C)` is the past-participle form defined under [Inflection and local surface repairs](#inflection-and-local-surface-repairs). For a numbered role, first resolve its relation as above, then apply:
 
@@ -1157,7 +1147,7 @@ Let `C` be the source/predicate surface and `D` the target surface. `pp(C)` is t
 | `time` | `C occurs during D` |
 | `unresolved` | Ordered base fallback: `D C` for `ARG0`, otherwise `C D`. |
 
-For non-numbered roles, the complete fixed table is:
+For non-numbered roles:
 
 | AMR role | Surface |
 | --- | --- |
@@ -1302,35 +1292,33 @@ When a merge replaces one dyad endpoint with a longer noun phrase, `render_dyad_
 
 ### Bundled role resources
 
-The package includes a compact PropBank numbered-role index, its provenance README and license, and the original AMR/UMR supplemental XML. No download is needed during translation. The index stores roleset identifiers, names, and role functions/descriptions, without corpus examples or source sentences.
-
-| Property | Pinned value |
-| --- | --- |
-| PropBank Frames release | `v3.4.0` |
-| Frames commit | `4087fa9ab5c40907c34ff91a56acc2cab1670145` |
-| AMR/UMR supplement commit | `c66e0ccf28b53f00051b187db83e937b5bee2e32` |
-| Rolesets | 11,304 |
-| Numbered roles | 28,810 |
-| Ambiguous role entries | 1 |
-| Index SHA-256 | `59f3e380bbead1e75e60bfedfb868c941e53d8e2c63b7ce3341342a8ec47dc7d` |
-| Resource license | CC BY-SA 4.0 |
-
-The supplement contributes 99 rolesets and overrides the earlier `have-degree.92` entry. Index construction is documented in the [resource README](../amr_translator/resources/propbank/README.md).
+The package bundles a PropBank numbered-role index and the AMR/UMR supplemental
+XML; translation requires no download. The index retains roleset identifiers,
+names, and role functions/descriptions, without corpus examples or source
+sentences. Versions, source commits, index construction, and attribution are
+documented in the [resource README](../amr_translator/resources/propbank/README.md).
+The resources retain their [CC BY-SA 4.0 license](../amr_translator/resources/propbank/LICENSE).
 
 The loader checks the index hash, schema, provenance fields, counts, and roleset-map size. `verify_resources()` additionally checks all four resource files against pinned hashes. Missing or changed resources raise `PropBankRoleIndexError`. A valid resource with an absent or ambiguous lexical entry instead produces the ordinary lookup status and surface fallback described above. Resource checks are cached within the process.
 
-Source and full provenance: [propbank.py](../amr_translator/propbank.py), [resource README](../amr_translator/resources/propbank/README.md), and [resource license](../amr_translator/resources/propbank/LICENSE).
+Source: [propbank.py](../amr_translator/propbank.py).
 
 ### Identity and text helpers
 
-Source: [text helpers](../amr_translator/frame.py) and [canonical key serialization](../amr_translator/frame.py).
+Source: [frame.py](../amr_translator/frame.py).
 
-Both translation entry points apply `normalize_exact_match_surface` to public verbalizations after template merging. The helpers below return strings without modifying their arguments. `translate` does not apply `format_nli_prompt_surface`; a period is appended only when that helper is called.
+After all rules and template merges, both entry points apply
+`normalize_exact_match_surface` to public verbalizations. Exact matching compares
+the resulting strings directly. Audit `merges[*].surface` uses the same formatting;
+structured identities and `diagnostic_provenance` retain their construction values.
+
+The helpers return strings without modifying their arguments. `translate` does
+not call `format_nli_prompt_surface`.
 
 | Helper | Exact behavior |
 | --- | --- |
 | `canonical_atom_key(expression)` | Serializes the structured identity as `TYPE:JSON`; see [Atom expressions and keys](#atom-expressions-and-keys). |
-| `normalize_exact_match_surface(value)` | Returns `str(value).strip().casefold()`. It trims outer whitespace and performs Unicode case folding. It does not collapse internal whitespace or remove punctuation. |
+| `normalize_exact_match_surface(value)` | Returns `str(value).strip().casefold()`: trims outer whitespace and applies Unicode case folding. Preserves internal whitespace and punctuation; adds no final period. |
 | `format_nli_prompt_surface(value)` | Returns `str(value).strip()` followed by one additional literal period. It preserves case and internal whitespace. It does not check existing punctuation: `"Text."` becomes `"Text.."`. |
 
 ```python
@@ -1501,7 +1489,7 @@ nodes, not literal strings. In `p -r-> h -:mod-> m`, `h` is the shared center.
 below use each node's normal verbalization, including applicable quantity/name
 metadata and pronoun agreement.
 
-The guard terms used in the tables are defined precisely as follows:
+Guard definitions:
 
 | Term | Requirement |
 | --- | --- |
@@ -1509,7 +1497,7 @@ The guard terms used in the tables are defined precisely as follows:
 | Registered modifier leaf | Concept occurs in `MODIFIER_GROUPS`; node has no outgoing edges or attributes and exactly one incoming edge. |
 | Physical modifier leaf | A registered modifier leaf outside the `classifying` group. |
 | Plain nominal | Nominal; not a possessive pronoun or `this`, `that`, `these`, `those`, `someone`, `anyone`, `everyone`, `nobody`; no outgoing argument role or restrictive modifier; every rendered quantity matches `[0-9]+(?:\.[0-9]+)?`. |
-| Local nominal | Nominal; normally not a possessive pronoun; no outgoing argument role, `:quant`, `:ord`, `:ordinal`, `:degree`, `:mode`, `:polarity`, or `:condition`; no modifier in the local blocked set. Attributes are limited to `:wiki` and nonnegative decimal numeric `:quant`. Where a table explicitly permits pronouns, the other checks still apply. |
+| Local nominal | Nominal; not a possessive pronoun unless the rule permits pronouns; no outgoing argument role, `:quant`, `:ord`, `:ordinal`, `:degree`, `:mode`, `:polarity`, or `:condition`; no modifier in the local blocked set. Attributes are limited to `:wiki` and nonnegative decimal numeric `:quant`. |
 | Simple property | The property node has exactly one outgoing edge, of the specified role, and no attributes; its concept belongs to the stated property registry. |
 | Simple spatial carrier | Concept is in `SPATIAL_CARRIERS`; exactly one outgoing edge, `:op1`, exactly one incoming edge, and no attributes. |
 
@@ -1670,9 +1658,6 @@ quiet bright dark difficult easy expensive cheap important strong weak high
 low close wide deep lax-01 nice-01 high-02 strong-02 beautiful-02 rough-04 muddy-01
 ```
 
-**Adjective states (`ADJECTIVE_STATES`).** These are the mappings listed under
-[Inflection and local surface repairs](#inflection-and-local-surface-repairs).
-
 **Physical properties (`PHYSICAL_PROPERTY_SURFACES`).** The mapped concepts are
 `black-04 white-03 red-02 green-02 yellow-02 blue-02 brown-01 pink-04 gray-02 small-02 large-02 young-01 old-02`
 using the mappings above, plus `tan-01 -> tan`. The unsuffixed concepts
@@ -1727,11 +1712,8 @@ Literal local materials are
 
 ### Merge diagnostics and unresolved content
 
-`translate_with_audit` returns accepted merges in `merges` and a count of rejected
-candidate/template matches in `rejected_templates`. These counts do not count
-failed translations or necessarily count distinct AMR subgraphs: one pair can
-match several registry entries, with one accepted and another rejected. A
-nonempty rejection dictionary is therefore compatible with successful merging.
+For audit fields and counting rules, see
+[Diagnostics and failures](#diagnostics-and-failures).
 
 Common rejection categories are:
 
@@ -1749,16 +1731,10 @@ Common rejection categories are:
 | Local property/material | `domain_possessor_not_simple_registered_predicate`, `property_relation_not_simple_registered_nodes`, `material_not_literal_leaf_or_carrier_not_simple`, `material_modifier_not_literal_physical_leaves`, `brand_degree_requires_simple_new_property`: the named local pattern fails. |
 | Rendering or overlap | `surface_does_not_preserve_modified_endpoint`: re-rendering drops or duplicates the modified endpoint. `overlapping_candidate`: an earlier accepted candidate already consumed a component. |
 
-A local merge wholly inside an unresolved content region may be accepted
-while its surrounding boundary remains unresolved. Boundary detection restricts
-merges; it does not supply modal or reported-speech semantics. See
-[Unresolved content boundaries](#unresolved-content-boundaries) for the exact
-detectors and their limits.
+Boundary detectors and semantic limits are described under
+[Unresolved content boundaries](#unresolved-content-boundaries).
 
 ### Executed merge examples
-
-The following synthetic AMRs illustrate accepted and rejected merges; outputs
-include the corresponding audit records.
 
 #### Degree property
 
@@ -1844,7 +1820,7 @@ rejected_templates: {"not_unique_same_positive_conjunction": 2}
 
 The formula retains the shared negation and both unsigned atom surfaces.
 
-#### Accepted local merge with an unresolved content boundary
+#### Local merge inside unresolved content
 
 ```text
 (w / want-01
@@ -1858,10 +1834,6 @@ merge: event_simple_modifier, [x1, x2] -> x4
 limitation: unresolved_nonfactive_content (governor w, content r)
 ```
 
-The event modifier is compacted within the running content. The audit still
-marks the wanting/running boundary as unresolved; this output must not be read
-as a complete logical analysis of wanting.
-
 ## Diagnostics and failures
 
 `translate_with_audit` returns the following fields. The `frame` is identical
@@ -1874,25 +1846,26 @@ to the result of `translate` for the same input.
 | `warnings` | Unresolved construction or rendering cases, each with `rule` and `node`, sorted by those fields. |
 | `limitations` | Detected nonfactual, reporting, and property-content boundaries, with their graph context. |
 | `merges` | Accepted ordinary merge records: rule, component identities, graph provenance, resulting atom, and Boolean macro definition. Initial same-event triples are not entries in this list. |
-| `rejected_templates` | Counts indexed by ordinary-merge rejection reason. These count rejected candidate checks, not failed input graphs or unique semantic problems. |
+| `rejected_templates` | Counts of rejected merge candidate/template checks, indexed by reason. |
 | `quantity_negations` | Accepted complete-proposition quantity-negation plans. |
 | `quantity_negation_rejected` | Counts indexed by quantity-negation rejection reason. |
 | `quantity_negation_rejected_details` | Individual rejected quantity candidates with their reason and available graph/atom context. |
 | `diagnostic_provenance` | Internal atom records from before ordinary merging, including owners, canonical keys, component dyads, source records, and projection information where applicable. |
 
-Rule events are stored as unique `(rule, node)` pairs: their number is not a
-count of every application at that node. Rejection counts can include
-overlapping candidates and checks reached before a later rule succeeds.
+Rule events contain each `(rule, node)` pair once, regardless of repeated
+applications.
 
-`diagnostic_provenance` is not the final atom inventory. It may retain atoms
-subsequently consumed by a merge, while a new merged atom is described in
-`merges` and `frame`. Use the merge's component IDs to trace it back to the
-earlier records. Use `frame["atoms"]` to enumerate the actual output.
+`rejected_templates` counts candidate/template checks, not failed translations
+or distinct AMR subgraphs. A pair can match several entries, with one accepted
+and another rejected. Counts also include candidates that overlap an earlier
+accepted merge.
 
-Warnings and limitations do not automatically make translation fail. For
-example, a desired or reported event can produce a structurally valid frame
-while its nonfactual status remains unresolved. An empty diagnostic category
-is not a proof that all possible semantic limitations have been detected.
+`diagnostic_provenance` records atoms before ordinary merging. Trace consumed
+atoms using component IDs in `merges`; enumerate the final atoms with
+`frame["atoms"]`.
+
+Warnings and limitations can accompany a valid frame. Empty diagnostic categories
+do not establish that all semantic limitations have been detected.
 
 ### Rejected inputs and contract errors
 

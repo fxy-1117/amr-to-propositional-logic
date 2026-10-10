@@ -1,9 +1,8 @@
-"""Pinned PropBank numbered-role lookup for parser-owned AMR predicates.
+"""Pinned PropBank lookup for AMR predicates and numbered roles.
 
-Only a predicate concept such as ``walk-01`` and a parser role such as
-``ARG2`` are accepted.  Source sentence text is never an input.  Missing or
-ambiguous metadata is represented explicitly so callers can conservatively
-retain their prior surface instead of guessing.
+Lookups use predicate concepts (``walk-01``) and AMR roles (``ARG2``).
+Source sentence text is not an input. Missing or ambiguous entries return
+a lookup status for surface fallback.
 """
 from __future__ import annotations
 

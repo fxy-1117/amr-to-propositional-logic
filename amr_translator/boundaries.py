@@ -1,4 +1,4 @@
-"""Ordinary boundaries rules."""
+"""Metadata and content boundary checks for atom merging."""
 
 
 def metadata_scope_issue(builder, roots):

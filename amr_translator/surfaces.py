@@ -19,8 +19,8 @@ ADJECTIVE_STATES = {
     "young-01": "young", "old-02": "old",
     "quick-02": "quick", "intense-02": "intense", "wet-01": "wet",
 }
-# Kept separate: registering these surfaces must not expand the older merge
-# registry or the set of accepted nonfactive scopes.
+# Separate from ADJECTIVE_STATES: adding entries there expands the
+# property registries used for merging and content boundaries.
 LOCAL_ADJECTIVE_STATES = {"empty-02": "empty"}
 
 

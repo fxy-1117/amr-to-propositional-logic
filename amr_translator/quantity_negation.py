@@ -1,4 +1,4 @@
-"""Ordinary quantity negation rules."""
+"""Negation of independent assertions from negative quantity metadata."""
 from collections import Counter, defaultdict
 from copy import deepcopy
 import re

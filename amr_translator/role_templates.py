@@ -194,8 +194,7 @@ DYAD_ROLE_TEMPLATES: Dict[str, str] = {
     "topic": "{source} is about {target}",
     "part": "{target} is part of {source}",
     "part-of": "{source} is part of {target}",
-    # PENMAN canonicalizes ``whole :consist-of part`` to
-    # ``part :consist whole``.
+    # The AMR model preserves ``:consist-of`` as a forward role.
     "consist": "{target} consists of {source}",
     "consist-of": "{source} consists of {target}",
     "location": "{source} occurs at {target}",
@@ -366,7 +365,7 @@ def _prd_relation(resolution: PropBankRoleResolution) -> str:
     return "patient" if resolution.role.casefold() == "arg1" else "result"
 
 def _semantic_relation(resolution: PropBankRoleResolution) -> str:
-    """Map official role metadata to a small transparent surface relation."""
+    """Map PropBank role metadata to a surface relation."""
 
     if not resolution.exact:
         return "unresolved"
@@ -706,8 +705,7 @@ _TRIPLE_RELATION_TEMPLATES: Dict[str, str] = {
     "topic": "{subject} {predicate} about {object}",
     "time": "{subject} {predicate} during {object}",
     "accompaniment": "{subject} {predicate} with {object}",
-    # Secondary PPT/PAG arguments are conservatively realized as associated
-    # participants rather than being forced into a direct-object position.
+    # Secondary PPT/PAG arguments use ``with`` instead of a direct object.
     "patient": "{subject} {predicate} with {object}",
     "agent": "{subject} {predicate} with {object}",
     "theme-active": "{subject} {predicate} with {object}",

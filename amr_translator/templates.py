@@ -69,8 +69,8 @@ TEMPLATES = (
 SPATIAL_CARRIERS = frozenset(
     "outside inside behind above below beside near under over across around next-to in-front-of "
     "along by beyond beneath through throughout among amongst".split())
-# Deliberately not a blanket :mod rule. Joint participation is retained only
-# on registered activity predicates; focusing and modal modifiers are excluded.
+# Joint participation requires a registered activity predicate;
+# focusing and modal modifiers are excluded.
 JOINT_ACTIVITIES = frozenset(("chat-01", "sit-01", "stand-01", "walk-01", "run-01",
                             "play-01", "sing-01", "dance-01", "work-01", "travel-01",
                             "eat-01", "talk-01", "live-01", "gather-01", "meet-03",
@@ -113,8 +113,8 @@ PROPERTIES = frozenset((
 ))
 PROPERTIES = PROPERTIES | frozenset(ADJECTIVE_STATES)
 COUNTABLE_TYPES = frozenset("asset car desk house hotel girl creature boy man woman book city building company person amount".split())
-# These properties are admitted only in the new positive-AND macros. This is
-# not a blanket '-NN' -> adjective repair for all dyads or negative scopes.
+# These properties are admitted only in positive-AND merges. This registry
+# does not extend adjective repair to dyads or negative scopes.
 PHYSICAL_PROPERTY_SURFACES = {
     concept: ADJECTIVE_STATES[concept] for concept in (
         "black-04", "white-03", "red-02", "green-02", "yellow-02", "blue-02",
@@ -137,8 +137,8 @@ RESTRICTIVE_MODIFIERS = BLOCKED_MODIFIERS | frozenset(
 REMAINING_RULES = frozenset(("physical_property_relation", "spatial_landmark_modifier",
                            "spatial_landmark_property", "modified_whole_part", "modified_possessor"))
 
-# New local families are deliberately scheduled after every existing rule.
-# The lexical additions below do not mutate the original modifier registry.
+# Local rules run after the other merge rules.
+# Their lexical registries do not expand MODIFIER_GROUPS.
 LOCAL_WORD_HEADS = {
     "rocky": frozenset("ground terrain road path area mountain hill beach shore shoreline land surface".split()),
     "colorful": frozenset("shirt blouse dress clothes clothing costume umbrella painting bird flag toy building flower ball".split()),

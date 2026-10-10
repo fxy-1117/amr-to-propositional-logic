@@ -1,4 +1,4 @@
-"""Ordinary reporting rules."""
+"""Detection of unresolved reporting boundaries."""
 import re
 
 from .scope_boundaries import REPORTING
