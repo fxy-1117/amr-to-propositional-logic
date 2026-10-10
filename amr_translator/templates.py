@@ -396,8 +396,7 @@ def _ordinary_dyads(builder, internal, frame):
             continue
         d = records[parts[0]]
         if (d.get("projected") or d.get("reference_mode_projection")
-                or d.get("record_type") != "edge" or a.get("coordination_root_node")
-                or a.get("participant_polarity_projected")):
+                or d.get("record_type") != "edge"):
             continue
         s, t = d.get("source_node"), d.get("target_node")
         if s == t or s not in builder.concepts or t not in builder.concepts:
@@ -421,7 +420,7 @@ def _guard(builder, centre, left, right, template, locations, boundaries):
     if len(nodes) != 3:
         return "not_three_distinct_nodes"
     la, lb = locations[left["atom"]["id"]], locations[right["atom"]["id"]]
-    if not (len(la) == len(lb) == 1 and la == lb and la[0][0] is not None and not la[0][1]):
+    if not (len(la) == 1 and la == lb and la[0][0] is not None and not la[0][1]):
         return "not_unique_same_positive_conjunction"
     for n in nodes:
         if (builder._raw_has_negative_polarity(n) or builder._condition_edges(n)
@@ -621,7 +620,7 @@ def _extra_guard(builder, centre, pair, template, locations, boundaries):
     if len(nodes) != 3:
         return "not_three_distinct_nodes"
     la, lb = locations[left["atom"]["id"]], locations[right["atom"]["id"]]
-    if not (len(la) == len(lb) == 1 and la == lb and la[0][0] is not None and not la[0][1]):
+    if not (len(la) == 1 and la == lb and la[0][0] is not None and not la[0][1]):
         return "not_unique_same_positive_conjunction"
     if any(builder._raw_has_negative_polarity(n) or builder._condition_edges(n)
            or builder._is_structural_connective(n) or n in builder.conditions for n in nodes):
@@ -770,7 +769,7 @@ def merge_registered_templates(builder, internal, frame, boundaries):
                 reason = None
                 if len(nodes) != 3:
                     reason = "path_not_three_nodes"
-                elif not (len(la) == len(lb) == 1 and la == lb and la[0][0] is not None and not la[0][1]):
+                elif not (len(la) == 1 and la == lb and la[0][0] is not None and not la[0][1]):
                     reason = "path_not_same_positive_conjunction"
                 elif builder.concepts[carrier] not in SPATIAL_CARRIERS:
                     reason = "spatial_carrier_not_registered"
